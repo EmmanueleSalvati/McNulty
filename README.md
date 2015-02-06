@@ -57,3 +57,8 @@ Dataset: Heart Disease Dataset from UCI Machine Learning Repository, found at [t
     * Value 1: hungarian
     * Value 2: switzerland
     * Value 4: va
+
+### Notes
+1. Got rid of the women: too few
+2. cholesterol has NaN values in Switzerland
+3. 
