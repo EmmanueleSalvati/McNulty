@@ -1,2 +1,3 @@
 McNulty_config.py
 *.pyc
+.ipynb_checkpoints
