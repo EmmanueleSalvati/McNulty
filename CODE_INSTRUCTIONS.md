@@ -9,8 +9,9 @@ Fire up ipython and do:
     McNulty_helper.zero_to_NaN(raw_df, 'rest_bp')
     McNulty_helper.change_types(raw_df)
     df = McNulty_helper.NaN_to_modes(raw_df)
+    df = McNulty_helper.reduce_diagnosis(df)
     men = df.loc[df['sex']==1.0,]
-**Note: I got rid of the women from the dataframe because there are too few of them.**
+**Note: I got rid of the women from the dataframe because there are too few of them. And I also reduced the diagnosis from 1->4 to 1**
 
 #### Make 1D histograms, or bar charts
     %matplotlib inline
@@ -22,37 +23,16 @@ Fire up ipython and do:
     g = sns.FacetGrid(men, col="hospital", sharey=False, size=4, aspect=1.)
     g.map(plt.hist, 'rest_bp', histtype='bar', align='mid')
     g.set_xlabels('blood pressure at rest')
-
-###### cholesterol
-    g = sns.FacetGrid(men, col="hospital", sharey=False, sharex=False, size=4, aspect=1.)
-    g.map(plt.hist, 'chol_mg_dl', align='mid')
-    g.set_xlabels('cholesterol')
-
-###### age
-    g = sns.FacetGrid(men, col="hospital", sharey=False, size=4, aspect=1.)
-    g.map(plt.hist, 'age', histtype='bar', align='mid')
-    g.set_xlabels('age')
-
-###### chest pain
-    g = sns.FacetGrid(men, col="hospital", sharey=False, size=4, aspect=1.)
-    g.map(sns.barplot, 'chest_pain_type')
-    g.set_xlabels('chest pain type')
-
-###### blood sugar at fasting
-    g = sns.FacetGrid(men, col="hospital", sharey=False, size=4, aspect=1.)
-    g.map(sns.barplot, 'fast_blood_sugar')
-    g.set_xlabels('blood sugar at fasting')
-
-###### thallium heart scan
-    g = sns.FacetGrid(men, col="hospital", sharey=False, size=4, aspect=1.)
-    g.map(sns.barplot, 'thal_defect')
-    g.set_xlabels('thallium heart scan')
+the variables to plot are:
+* chol\_mg\_dl
+* age
+* chest_pain_type
+* fast_blood_sugar
+* thal_defect
 
 ###### 2D plots
     g = sns.PairGrid(men, vars=['rest_bp', 'chol_mg_dl', 'age'])
     g.map_offdiag(plt.scatter)
-
-
 
 #### To train the classifiers
 

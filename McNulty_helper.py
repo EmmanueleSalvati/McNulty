@@ -65,6 +65,19 @@ def NaN_to_modes(df):
     return new_df
 
 
+def reduce_diagnosis(df):
+    """values of 1, 2, 3, 4 are all equivalent to 1: fixed"""
+
+    def four_to_one(number):
+        if number >= 1:
+            return 1
+        else:
+            return 0
+
+    df['diagnosis'] = df['diagnosis'].apply(four_to_one)
+    return df
+
+
 def select_features(X, Y):
     """Input: X = df['age', 'sex', '...']
               Y = df['diagnosis']
