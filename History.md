@@ -1,6 +1,6 @@
 ## To create TABLES:
 
-- table_names:
+These are the table_names:
 
 * hungarian_tidy
 * switzerland_tidy
@@ -34,18 +34,17 @@
 * va_tidy.csv
 * all_hospitals.csv
 
-
-LOAD DATA LOCAL INFILE "hungarian_tidy.csv"
-   INTO TABLE hungarian_tidy FIELDS TERMINATED BY "," IGNORE 1 LINES;''
+    LOAD DATA LOCAL INFILE \"hungarian_tidy.csv\"
+    INTO TABLE hungarian_tidy FIELDS TERMINATED BY \",\" IGNORE 1 LINES;
 
 #### to ADD tables to one table ( example):
 
-'' INSERT IGNORE
-   INTO all_hospitals
-SELECT *
-   FROM va_tidy;''
+    INSERT IGNORE
+        INTO all_hospitals
+        SELECT *
+        FROM va_tidy;
 
 #### to ADD PRIMARY KEY:
 
-''ALTER TABLE all_hospitals
-ADD COLUMN patient_id INT PRIMARY KEY AUTO_INCREMENT;''
+    ALTER TABLE all_hospitals
+    ADD COLUMN patient_id INT PRIMARY KEY AUTO_INCREMENT;
