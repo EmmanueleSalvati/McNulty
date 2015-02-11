@@ -61,4 +61,7 @@ Dataset: Heart Disease Dataset from UCI Machine Learning Repository, found at [t
 ### Notes
 1. Got rid of the women: too few
 2. cholesterol has NaN values in Switzerland
-3. 
+3. ECG at rest has an unusual distribution for Cleveland
+4. Num vessels has all zeros in veterans and Hungary: discard
+5. ECG not useful: discard
+6. This dataframe is full of shit: how can most people have asymptomatic chest pain?

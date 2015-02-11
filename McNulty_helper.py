@@ -115,8 +115,9 @@ def train_classifiers(x, y):
     return linmodel
 
 
-def get_range(column):
-    """For a given column (a pd Series), returns a tuple min, max"""
+def hospital_to_number(hospital):
+    """Given a hospital string, it returns a value 0-3"""
 
-    return min(column), max(column)
+    hosp_code = {'cleveland': 0, 'hungarian': 1, 'switzerland': 2, 'va': 3}
 
+    return hosp_code[hospital]
