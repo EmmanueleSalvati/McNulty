@@ -34,6 +34,9 @@ the variables to plot are:
     g = sns.PairGrid(men, vars=['rest_bp', 'chol_mg_dl', 'age'])
     g.map_offdiag(plt.scatter)
 
+###### feature selection
+    run McNulty_feature_selection.py
+
 #### To train the classifiers
 
     X = df[['age', 'sex', 'rest_bp', 'st_max_heart_rt_ach']]

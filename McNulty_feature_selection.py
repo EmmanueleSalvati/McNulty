@@ -19,6 +19,62 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 
 
+def retrieve_dataframe():
+    """Connect to the SQL database on the cloud, returns the dataframe"""
+
+    raw_df = import_df('all_hospitals')
+    raw_df = clean_question_marks(raw_df)
+    zero_to_NaN(raw_df, 'chol_mg_dl')
+    zero_to_NaN(raw_df, 'rest_bp')
+    change_types(raw_df)
+    df = NaN_to_modes(raw_df)
+    df = reduce_diagnosis(df)
+    men = df.loc[df['sex'] == 1.0, ]
+    men['hospital'] = men['hospital'].apply(hospital_to_number)
+
+    return men
+
+
+def train_test(df):
+    """Given a dataframe, returns train and test dataframes"""
+
+    (train_arr, test_arr) = train_test_split(df)
+    train = pd.DataFrame(train_arr, copy=True)
+    test = pd.DataFrame(test_arr, copy=True)
+    train.columns = df.columns
+    test.columns = df.columns
+    change_types(train)
+    change_types(test)
+
+    return (train, test)
+
+
+def dummify(df):
+    """create dummy variables and add them to the dataframe"""
+
+    cp = pd.get_dummies(df['chest_pain_type'])
+    fbs = pd.get_dummies(df['fast_blood_sugar'])
+    thal = pd.get_dummies(df['thal_defect'])
+    hosp = pd.get_dummies(df['hospital'])
+    ecg = pd.get_dummies(df['rest_ecg'])
+    angina = pd.get_dummies(df['st_exercise_angina'])
+    slope = pd.get_dummies(df['st_exercise_slope'])
+    vessels = pd.get_dummies(df['colored_vessels'])
+    cp.columns = ['cp1', 'cp2', 'cp3', 'cp_asym']
+    fbs.columns = ['fbs0', 'fbs1']
+    thal.columns = ['thal3', 'thal6', 'thal7']
+    hosp.columns = ['cleveland', 'hungarian', 'switzerland', 'va']
+    ecg.columns = ['ecg_norm', 'ecg_ST-T_abn', 'ecg_left_hyper']
+    angina.columns = ['angina_yes', 'angina_no']
+    slope.columns = ['up_slope', 'no_slope', 'down_slope']
+    vessels.columns = ['zero_vess', 'one_vess', 'two_vess', 'three_vess']
+
+    df_with_dummies = pd.concat([df, cp, fbs, thal, hosp, ecg,
+                                angina, slope, vessels], axis=1)
+
+    return df_with_dummies
+
+
 if __name__ == '__main__':
 
     sns.set()
