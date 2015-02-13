@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+from scipy import interp
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -25,12 +26,19 @@ from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import auc
 
+
+# best_columns = ['age', 'chol_mg_dl', 'st_max_heart_rt_ach', 'st_depression',
+#                 'cp2', u'cp3', u'cp_asym', u'fbs1', u'thal3', u'thal7',
+#                 'cleveland', u'hungarian', u'switzerland', u'ecg_norm',
+#                 'ecg_ST-T_abn', u'angina_yes', u'up_slope', u'zero_vess',
+#                 'one_vess', 'two_vess', 'diagnosis']
 
 best_columns = ['age', 'chol_mg_dl', 'st_max_heart_rt_ach', 'st_depression',
-                'cp2', u'cp3', u'cp_asym', u'fbs1', u'thal3', u'thal7',
+                'fbs1', 'thal6', 'thal7',
                 'cleveland', u'hungarian', u'switzerland', u'ecg_norm',
-                'ecg_ST-T_abn', u'angina_yes', u'up_slope', u'zero_vess',
+                'ecg_ST-T_abn', u'angina_yes', u'down_slope', u'zero_vess',
                 'one_vess', 'two_vess', 'diagnosis']
 
 models_dict = {LogisticRegression: "LOGISTIC REGRESSION",
@@ -86,23 +94,43 @@ def classifier_score(model, sample):
         return model.decision_function(sample)[:, 0]
 
 
-def plot_roc(x, y, models):
-    """Plot the ROC for the various classifiers;
-    x, y are the test sample, models is a list of classifiers"""
+def plot_crossvalidated_roc(cv, X, Y, classifiers):
+    """plot cross validation roc's"""
 
     plt.figure()
     plt.ylim(ymax=1.1)
     plt.xlim(xmin=-0.1)
-    for model in models:
-        y_score = classifier_score(model, x.astype(float))
-        fp, tp, thresh = roc_curve(y, y_score)
-        area = roc_auc_score(y, y_score)
-        label = models_dict[type(model)] + ' area: %.2g' % area
-        plt.plot(fp, tp, label=label)
 
-    plt.legend(loc=4)
-    plt.ion()
-    plt.show()
+    colors = 'bgrmyckw'
+    color_index = 0
+
+    for classifier in classifiers:
+
+        print "classifier:", classifier
+        mean_tpr = 0.
+        mean_fpr = np.linspace(0, 1, 100)
+        area = 0
+
+        for (train, test) in cv:
+            X_train, Y_train = X.iloc[train], Y.iloc[train]
+            x_test, y_test = X.iloc[test], Y.iloc[test]
+
+            classifier.fit(X_train, Y_train)
+            y_score = classifier_score(classifier, x_test.astype(float))
+            area += roc_auc_score(y_test, y_score)
+            fp, tp, thresh = roc_curve(y_test, y_score)
+            mean_tpr += interp(mean_fpr, fp, tp)
+            mean_tpr[0] = 0.0
+
+        area /= len(cv)
+        mean_tpr /= len(cv)
+        mean_tpr[-1] = 1.0
+        label = models_dict[type(classifier)] + ' area = %.5g' % area
+        plt.plot(mean_fpr, mean_tpr, c=colors[color_index], label=label)
+        color_index += 1
+        plt.legend(loc=4)
+        plt.ion()
+        plt.show()
 
 
 if __name__ == '__main__':
@@ -110,33 +138,39 @@ if __name__ == '__main__':
     raw_men = retrieve_dataframe()
     dummified_men = dummify(raw_men)
     men = dummified_men[best_columns]
+
+    # for kNN only
     (train, test) = train_test(men)
-
-    # X = men.loc[:, best_columns[:-1]]
-    # Y = men['diagnosis']
-    # skf = StratifiedKFold(Y, n_folds=10)
-
     X = train.loc[:, best_columns[:-1]]
     Y = train['diagnosis']
     x = test.loc[:, best_columns[:-1]]
     y = test['diagnosis']
+    knn = train_knn(X, Y, x, y)
+    del X, Y, x, y
+
+    X = men.loc[:, best_columns[:-1]]
+    Y = men['diagnosis']
+
+    skf = StratifiedKFold(Y, random_state=1, n_folds=10)
 
     lm = LogisticRegression(random_state=1)
-    knn = train_knn(X, Y, x, y)
     gnb = GaussianNB()
     svc = SVC()
     rfc = RandomForestClassifier(random_state=1)
 
-    lm.fit(X, Y)
-    gnb.fit(X, Y)
-    svc.fit(X, Y)
-    rfc.fit(X, Y)
+    classifiers = [lm, knn, gnb, svc, rfc]
+    plot_crossvalidated_roc(skf, X, Y, classifiers)
 
-    class_report(x, y, lm)
+    # lm.fit(X, Y)
+    # gnb.fit(X, Y)
+    # svc.fit(X, Y)
+    # rfc.fit(X, Y)
+
+    # class_report(x, y, lm)
     # class_report(x, y, knn)
     # class_report(x, y, gnb)
     # class_report(x, y, svc)
-    class_report(x, y, rfc)
+    # class_report(x, y, rfc)
 
-    models = [lm, knn, gnb, svc, rfc]
-    plot_roc(x, y, models)
+    # models = [lm, knn, gnb, svc, rfc]
+    # plot_roc(x, y, models)

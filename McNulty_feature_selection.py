@@ -65,7 +65,7 @@ def dummify(df):
     thal.columns = ['thal3', 'thal6', 'thal7']
     hosp.columns = ['cleveland', 'hungarian', 'switzerland', 'va']
     ecg.columns = ['ecg_norm', 'ecg_ST-T_abn', 'ecg_left_hyper']
-    angina.columns = ['angina_yes', 'angina_no']
+    angina.columns = ['angina_no', 'angina_yes']
     slope.columns = ['up_slope', 'no_slope', 'down_slope']
     vessels.columns = ['zero_vess', 'one_vess', 'two_vess', 'three_vess']
 
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     thal_test.columns = ['thal3', 'thal6', 'thal7']
     hosp_test.columns = ['cleveland', 'hungarian', 'switzerland', 'va']
     ecg_test.columns = ['ecg_norm', 'ecg_ST-T_abn', 'ecg_left_hyper']
-    angina_test.columns = ['angina_yes', 'angina_no']
+    angina_test.columns = ['angina_no', 'angina_yes']
     slope_test.columns = ['up_slope', 'no_slope', 'down_slope']
     vessels_test.columns = ['zero_vess', 'one_vess', 'two_vess', 'three_vess']
 
