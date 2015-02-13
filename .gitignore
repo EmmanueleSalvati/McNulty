@@ -3,3 +3,4 @@ McNulty_config.py
 .ipynb_checkpoints
 *.jpg
 *.png
+venv
