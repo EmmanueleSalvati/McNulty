@@ -28,3 +28,4 @@ Find best classifier:
 4. Num vessels has all zeros in veterans and Hungary: discard
 5. ECG not useful: discard
 6. Discard chest pain: almost all patients are asymptomatic chest pain, which means that they probably get redirected to other departments in the hospitals.
+7. Logistic regression is the best classifier, according to the ROC curves I get from McNulty_find_best_classifiers.py
