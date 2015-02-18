@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-
-<style>
+<!--
+template taken from:
+http://bl.ocks.org/mbostock/3885304
+ -->
+ <style>
 .bar {
     fill: orange;
 }
 .bar:hover {
     fill: orangered;
+}
+.buttons {
+    fill: orange;
+}
+.buttons:hover {
+    fill: red;
 }
 .axis {
     font: 12px sans-serif;
@@ -93,34 +102,39 @@
 
     svg.call(tip);
 
-    var datasets = ['thal', 'chest pain'];
+    var datasets = ['thallium defect', 'chest pain', 'diagnosis',
+        'fast blood sugar'
+    ];
     var datasets_dicts = {
-        'thal': 'thal.tsv',
-        'chest pain': 'cp_all.tsv'
+        'thallium defect': 'thal.tsv',
+        'chest pain': 'cp_all.tsv',
+        'diagnosis': 'diag.tsv',
+        'fast blood sugar': 'fbs.tsv'
     };
 
     var buttons = svg.selectAll('.buttons')
         .data(datasets)
         .enter().append('g')
+        .attr('class', 'buttons')
         .attr('transform', function(d, i) {
             return "translate(900," + (i + 1) * 50 + ")"
         });
 
     buttons.append("rect")
         .attr('width', 120)
-        .attr("height", 30)
-        .attr('fill', 'orange');
+        .attr("height", 30);
 
     buttons.append('text')
         .attr("class", "text")
         .attr('x', 10)
         .attr('y', 10)
+        .attr('fill', 'black')
         .attr('dy', ".71em")
         .text(function(d) {
             return d;
         });
 
-    buttons.on("mouseover", function() {
+    buttons.on("click", function() {
         my_dataset = d3.select(this).select("text").text()
         loadTsv(my_dataset);
     });
