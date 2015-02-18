@@ -15,6 +15,23 @@ def import_df(sql_table):
     return df
 
 
+def write_pkl(pklname):
+    """Write a pickle file with the dataframe in it"""
+
+    df = import_df('all_hospitals')
+    with open(pklname, 'w') as pklfile:
+        pkl.dump(df, pklfile)
+
+
+def read_pkl(pklname):
+    """Read the dataframe from the pklfile"""
+
+    with open(pklname, 'r') as pklfile:
+        df = pkl.load(pklfile)
+
+    return df
+
+
 if __name__ == '__main__':
 
     df = import_df('all_hospitals')
