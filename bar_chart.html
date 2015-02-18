@@ -48,32 +48,21 @@
 </style>
 
 <body>
-
-    <button type="button" onclick="alert('Hello world!')">Chest pain</button>
-    <button type="button" onclick="getData('cp')">Chest pain</button>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
     <script>
-    datasets = {
-        "cp": "cp_all.tsv",
-        "th": "thal.tsv"
-    };
-
-    function getData(x) {
-        return datasets[x];
-    };
-
     var margin = {
             top: 50,
-            right: 20,
+            right: 80,
             bottom: 30,
             left: 40
         },
-        width = 960 - margin.left - margin.right,
+        width = 1060 - margin.left - margin.right,
         height = 600 - margin.top - margin.bottom;
 
     var x = d3.scale.ordinal()
-        .rangeRoundBands([0, width], .1);
+        .rangeRoundBands([0, width - 100], .1);
 
     var y = d3.scale.linear()
         .range([height, 0]);
@@ -96,8 +85,6 @@
             return "<strong>Num. Patients:</strong> <span style='color:red'>" + d.patients + "</span>";
         })
 
-    // var word = "dunno";
-
     var svg = d3.select('body').append('svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
@@ -106,47 +93,87 @@
 
     svg.call(tip);
 
-    d3.tsv(getData('th'), type, function(error, data) {
-    // d3.tsv(svg.call(getData('th')), type, function(error, data) {
-        x.domain(data.map(function(d) {
-            return d.x;
-        }));
-        y.domain([0, d3.max(data, function(d) {
-            return d.patients;
-        })]);
+    var datasets = ['thal', 'chest pain'];
+    var datasets_dicts = {
+        'thal': 'thal.tsv',
+        'chest pain': 'cp_all.tsv'
+    };
 
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
+    var buttons = svg.selectAll('.buttons')
+        .data(datasets)
+        .enter().append('g')
+        .attr('transform', function(d, i) {
+            return "translate(900," + (i + 1) * 50 + ")"
+        });
 
-        svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr('y', 6)
-            .attr('dy', ".71em")
-            .style('text-anchor', '#end')
-            .text("Patients");
+    buttons.append("rect")
+        .attr('width', 120)
+        .attr("height", 30)
+        .attr('fill', 'orange');
 
-        svg.selectAll(".bar")
-            .data(data)
-            .enter().append("rect")
-            .attr('class', 'bar')
-            .attr('x', function(d) {
-                return x(d.x);
-            })
-            .attr('width', x.rangeBand())
-            .attr('y', function(d) {
-                return y(d.patients);
-            })
-            .attr('height', function(d) {
-                return height - y(d.patients);
-            })
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
+    buttons.append('text')
+        .attr("class", "text")
+        .attr('x', 10)
+        .attr('y', 10)
+        .attr('dy', ".71em")
+        .text(function(d) {
+            return d;
+        });
+
+    buttons.on("mouseover", function() {
+        my_dataset = d3.select(this).select("text").text()
+        loadTsv(my_dataset);
     });
+
+    function loadTsv(a_dataset) {
+        a_dataset_str = datasets_dicts[a_dataset];
+        d3.tsv(a_dataset_str, type, function(error, data) {
+            x.domain(data.map(function(d) {
+                return d.x;
+            }));
+            y.domain([0, d3.max(data, function(d) {
+                return d.patients;
+            })]);
+
+            svg.selectAll(".axis")
+                .remove();
+            svg.selectAll('.bar')
+                .remove();
+
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+            svg.append("g")
+                .attr("class", "axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr('y', 6)
+                .attr('dy', ".71em")
+                .style('text-anchor', '#end')
+                .text("Patients");
+
+            bars = svg.selectAll(".bar");
+
+            bars.data(data)
+                .enter().append("rect")
+                .attr('class', 'bar')
+                .attr('x', function(d) {
+                    return x(d.x);
+                })
+                .attr('width', x.rangeBand())
+                .attr('y', function(d) {
+                    return y(d.patients);
+                })
+                .attr('height', function(d) {
+                    return height - y(d.patients);
+                })
+                .on('mouseover', tip.show)
+                .on('mouseout', tip.hide);
+        });
+    }
 
     function type(d) {
         d.patients = +d.patients;
