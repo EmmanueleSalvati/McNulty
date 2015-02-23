@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+    <link rel="stylesheet" href="d3.slider.css" />
+    <style>
+    h2 {
+        font-size: 1.5em;
+        color: gray;
+    }
+    .feature {
+        margin-top: 50px;
+    }
+    .wrapper {
+        width: 550px;
+        margin-left: 50px;
+        margin-right: 10px;
+        margin-top: 100px;
+    }
+    #boh {
+        position: absolute;
+        left: 600px;
+        top: 10px;
+    }
+    .buttons {
+        fill: none;
+        font: 24px sans-serif;
+        shape-rendering: crispEdges;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper" id="sliders">
+
+        <h2 class="feature">Age: <span id="age">30</span></h2>
+        <div id="age_slider"></div>
+
+        <h2 class="feature">Cholesterol (mg/dl): <span id="chol">115</span></h2>
+        <div id="chol_slider"></div>
+
+    </div>
+
+    <div id="boh">
+    </div>
+
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="d3.slider.js"></script>
+
+    <script>
+    function type(d) {
+        var elem_key = [+d.age, +d.chol];
+        d.prediction = +d.prediction;
+        return [elem_key, d.prediction];
+    }
+
+    var current_chol = 85;
+    var current_age = 28; 
+
+    var prediction = 0;
+    var ext_dataset = [];
+
+    d3.csv("predictions.csv", function(data) {
+        ext_dataset = data.map(function(d) {
+            var elem_key = [+d.age, +d.chol];
+            d.prediction = +d.prediction;
+
+            return [elem_key, d.prediction];
+        });
+    });
+
+    function get_prediction(age, chol) {
+        for (var i = 0; i < ext_dataset.length; i++) {
+            if (ext_dataset[i][0][0] == age && ext_dataset[i][0][1] == chol) {
+                prediction = ext_dataset[i][1];
+            }
+        }
+    }
+
+    d3.select('#chol_slider')
+        .call(
+            d3.slider()
+            .value(current_chol)
+            .step(1)
+            .axis(true)
+            .min(85)
+            .max(603)
+            .on('slide', function(evt, value) {
+                d3.select('#chol').text(value);
+                current_chol = value;
+                get_prediction(current_age, current_chol);
+                update();
+            })
+        );
+
+    d3.select('#age_slider')
+        .call(
+            d3.slider()
+            .value(current_age)
+            .step(1)
+            .axis(true)
+            .min(28)
+            .max(77)
+            .on('slide', function(evt, value) {
+                d3.select('#age').text(value);
+                current_age = value;
+                get_prediction(current_age, current_chol);
+                update();
+            })
+        );
+
+    var margin = {
+            top: 10,
+            right: 10,
+            bottom: 30,
+            left: 10
+        },
+        width = 600 - margin.left - margin.right,
+        height = 800 - margin.top - margin.bottom;
+
+    var svg = d3.select('#boh').append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    var datasets = [prediction];
+
+    var circles = svg.selectAll('circle')
+        .data(datasets)
+        .enter().append('circle')
+        .attr('r', 100)
+        .attr('cx', 300)
+        .style('opacity', function(d) {
+            return d;
+        })
+        .attr('cy', 200);
+
+    var buttons = svg.selectAll('.buttons')
+        .data(datasets)
+        .enter().append('g')
+        .attr('class', 'buttons')
+        .attr('transform', "translate(100,350)");
+
+    buttons.append("rect")
+        .attr('width', 400)
+        .attr("height", 50);
+
+    buttons.append('text')
+        .attr("class", "text")
+        .attr('x', 10)
+        .attr('y', 15)
+        .attr('fill', 'black')
+        .attr('dy', ".71em");
+
+    function update() {
+        datasets = [prediction];
+
+        svg.selectAll('circle')
+            .data(datasets)
+            .style('fill', function(d) {
+                if (d >= 0.5) {
+                    return 'red';
+                } else {
+                    return 'green';
+                };
+            })
+            .style('opacity', function(d) {
+                if (d >= 0.5) {
+                    return d;
+                } else {
+                    return 1 - d;
+                }
+            })
+        svg.selectAll('text')
+            .data(datasets)
+            .text(function(d) {
+                return 'Chance of coronary restriction: ' + Math.round(d * 100) + '%';
+            })
+            .style('stroke', function(d) {
+                if (d >= 0.5) {
+                    return 'red';
+                } else {
+                    return 'green';
+                }
+            })
+    };
+    </script>
+</body>
+
+</html>
