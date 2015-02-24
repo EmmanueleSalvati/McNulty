@@ -1,7 +1,6 @@
 """Run the final Logistic Regression"""
 
 import numpy as np
-
 from McNulty_feature_selection import retrieve_dataframe
 from McNulty_feature_selection import dummify
 
@@ -53,17 +52,6 @@ if __name__ == '__main__':
     model = Logit(Y, X).fit()
     print model.summary()
 
-    # beta_cholesterol = model.params['chol_mg_dl']
-    # beta_st_depression = model.params['age']
-    # chol_dict = create_param_dict(X['chol_mg_dl'], beta_cholesterol)
-    # st_depr_dict = create_param_dict(X['age'], beta_st_depression)
-
-    # chol = np.array(X['chol_mg_dl'])
-    # chol_array = bin_dataset(chol, 10)
-
-    # age = np.array(X['age'])
-    # age_array = bin_dataset(age, 10)
-
     prediction = {}
     for age in range(28, 78):
         for chol in range(85, 604):
@@ -74,5 +62,5 @@ if __name__ == '__main__':
         predict_writer = csv.writer(csvfile)
         for age in range(28, 78):
             for chol in range(85, 604):
-                predict_writer.writerow([age, chol, model.predict([age, chol, 1.])[0]])
-
+                predict_writer.writerow([age, chol, model.predict(
+                                        [age, chol, 1.])[0]])
